@@ -5,50 +5,58 @@
     $password = 'root';
     $dbname = 'sistema_pedidos_gustavov';
     $conn = new mysqli($servername, $username, $password, $dbname);
-    if ($conn -> connect_error){
-        die('Conexão falhou:' . $conn -> connect_error);
+
+    if ($conn -> connect_error) {
+        die('Conexão falhou: ' . $conn -> connect_error);
     }
 
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $nome = $_POST['nome'];
-        $quantidade = $_POST['quantidade'];
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $nome_cliente = $_POST['nome_cliente'];
         $nome_produto = $_POST['nome_produto'];
-        $data = $_POST['data_entrega'];
-        $sql = "INSERT INTO pedidos (nome, quantidade, nome_produto, data_entrega) VALUES ('$nome', '$quantidade', '$nome_produto', '$data')";
-        if($conn -> query($sql) === true){
+        $quantidade = $_POST['quantidade'];
+        $data_pedido = $_POST['data_pedido'];
+
+        $sql = "INSERT INTO pedidos (nome_cliente, nome_produto, quantidade,data_pedido) VALUES ('$nome_cliente', '$nome_produto', '$quantidade', '$data_pedido')";
+
+        if ($conn->query($sql) === true) {
             echo "Novo registro adicionado!";
         } else {
-            echo "Erro" . $sql . "<br>" . $conn -> error;
+            echo "Erro: " . $sql . "<br>" . $conn -> error;
         }
     }
 
-    if($_SERVER['REQUEST_METHOD'] == 'POST'){
-        $sql = "SELECT * FROM pedidos";
-        $result = $conn -> query($sql);
-        if($result -> num_rows > 0){
-            echo "<table border='1'>
-                <tr>
-                    <th> ID </th>
-                    <th> Nome </th>
-                    <th> Pedido </th>
-                    <th> Quantidade </th>
+    $sql = "SELECT * FROM pedidos";
+    $result = $conn -> query($sql);
+
+
+    if ($result -> num_rows > 0) {
+        echo "<table border='1'>
+            <tr>
+                <th>nome_cliente</th>
+                <th>nome_produto</th>
+                <th>quantidade</th>
+                <th>data_pedido</th>
+                <th>Ações</th>
+            </tr>";
+        while ($row = $result -> fetch_assoc()) {
+            echo "<tr>
+                    <td>{$row['nome_cliente']}</td>
+                    <td>{$row['nome_produto']}</td>
+                    <td>{$row['quantidade']}</td>
+                    <td>{$row['data_pedidos']}</td>
+                    <td>
+                        <a href='update.php?id={$row['id']}'>Editar</a> |
+                        <a href='delete.php?id={$row['id']}'>Excluir</a>
+                    </td>
                 </tr>";
-            while($row = $result -> fetch_assoc()){
-                echo "<table border='1'>
-                <tr>
-                    <td> {$row['id']} </td>
-                    <td> {$row['nome']} </td>
-                    <td> {$row['nome_produto']} </td>
-                    <td> {$row['quantidade']} </td>
-                </tr>"; 
-            }
-            echo "</table>";
-        }else {
-            echo "Nenhuma pessoa cadastrada";
         }
-        
+        echo "</table>";
+    } else {
+        echo "Nenhum registro encontrado.";
     }
-$conn -> close();
+
+   
+    $conn -> close();
 ?>
 
 <!DOCTYPE html>
@@ -67,8 +75,8 @@ $conn -> close();
         <input type="text" name="quantidade" required>
         <label for="nome_produto">Nome do item:</label>
         <input type="text" name="nome_produto" required>
-        <label for="data_entrega">Data atual:</label>
-        <input type="date" name="data_entrega" required>
+        <label for="data">Data atual:</label>
+        <input type="date" name="data" required>
         <input type="submit" value="Realizar Pedido">
     </form>
 </body>
